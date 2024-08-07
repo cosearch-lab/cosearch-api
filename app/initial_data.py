@@ -66,9 +66,9 @@ def init() -> None:
 
 
 def main() -> None:
-    _LOGGER.info("Creating initial data")
+    _LOGGER.info("Initializing database")
     init()
-    _LOGGER.info("Initial data created")
+    _LOGGER.info("Database initialized")
 
 
 if __name__ == "__main__":
