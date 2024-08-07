@@ -99,7 +99,7 @@ def add_contribution(
         contributors=[contributor_1.id],
         tags=[],
     )
-    db_contribution = crud.create_contribution(session=db, contribution=contribution)
+    db_contribution, _ = crud.create_contribution(session=db, contribution=contribution)
 
     return db_contribution, contributor_1, contributor_2
 
@@ -125,7 +125,9 @@ def add_contribution_with_dependency(
         tags=[],
         dependencies=[contribution_1.id],
     )
-    contribution_2 = crud.create_contribution(session=db, contribution=contribution_2)
+    contribution_2, _ = crud.create_contribution(
+        session=db, contribution=contribution_2
+    )
 
     return contribution_1, contribution_2, contributor_1, contributor_2
 

@@ -1,3 +1,4 @@
+from sqlmodel import Session
 from structlog import get_logger
 
 from app.core.exceptions import NotFoundError
@@ -6,10 +7,16 @@ _LOGGER = get_logger()
 
 
 def update_links(
-    session, obj, obj_name, link_name, previous_links, new_links, select_function
+    session: Session,
+    obj,
+    obj_name: str,
+    link_name: str,
+    previous_links,
+    new_links_ids,
+    select_function,
 ):
     previous_links_ids = [link.id for link in previous_links]
-    for link_in_id in new_links:
+    for link_in_id in new_links_ids:
         if link_in_id not in previous_links_ids:
             link = select_function(session, link_in_id)
             if link is None:
@@ -30,7 +37,7 @@ def update_links(
                 contribution_id=obj.id,
             )
     for link_id in previous_links_ids:
-        if link_id not in new_links:
+        if link_id not in new_links_ids:
             link = select_function(session, link_id)
             if link is None:
                 raise NotFoundError(what=f"{link_name.capitalize()} with ID {link_id}")
