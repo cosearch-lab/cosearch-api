@@ -508,6 +508,12 @@ def test_contribution_dependents(client, add_contribution_with_dependency):
         "id": contribution_2.id,
         "title": "Test Contribution 2",
         "short_title": None,
+        "discord_chat_link": None,
+        "github_link": None,
+        "forum_link": None,
+        "wiki_link": None,
+        "archived_at": None,
+        "archive_reason": None,
         "date": "2021-01-01T00:00:00",
         "contributors": [
             {

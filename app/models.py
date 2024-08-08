@@ -404,6 +404,15 @@ class ContributionShort(SQLModel):
     title: str
     short_title: str | None = None
     date: datetime
+
+    discord_chat_link: str | None = None
+    github_link: str | None = None
+    forum_link: str | None = None
+    wiki_link: str | None = None
+
+    archived_at: datetime | None = None
+    archive_reason: str | None = None
+
     contributors: list[ContributorShort] = []
     tags: list[TagPublic] = []
     reviews: list[ReviewShort] = []
