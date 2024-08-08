@@ -507,7 +507,7 @@ def test_contribution_dependents(client, add_contribution_with_dependency):
     assert content[0] == {
         "id": contribution_2.id,
         "title": "Test Contribution 2",
-        "short_title": "Test Contrib 2",
+        "short_title": None,
         "date": "2021-01-01T00:00:00",
         "contributors": [
             {

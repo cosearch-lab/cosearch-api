@@ -115,7 +115,6 @@ def add_contribution_with_dependency(
 
     contribution_2 = ContributionCreate(
         title="Test Contribution 2",
-        short_title="Test Contrib 2",
         date=datetime(2021, 1, 1, 0, 0, 0),
         links=[
             ContributionLinks(description="Test link 2", url="https://example2.com")

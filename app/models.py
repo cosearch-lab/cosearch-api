@@ -396,13 +396,13 @@ class ContributionUpdate(ContributionBase):
 class ContributionDependency(SQLModel):
     id: str
     title: str
-    short_title: str
+    short_title: str | None = None
 
 
 class ContributionShort(SQLModel):
     id: str
     title: str
-    short_title: str
+    short_title: str | None = None
     date: datetime
     contributors: list[ContributorShort] = []
     tags: list[TagPublic] = []
