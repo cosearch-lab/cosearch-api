@@ -1,4 +1,6 @@
-from pydantic import PostgresDsn, computed_field
+from typing import Literal
+
+from pydantic import HttpUrl, PostgresDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -11,6 +13,9 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str = ""
+
+    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    SENTRY_DSN: HttpUrl | None = None
 
     @computed_field  # type: ignore[misc]
     @property
