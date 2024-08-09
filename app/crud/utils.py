@@ -15,6 +15,7 @@ def update_links(
     new_links_ids,
     select_function,
 ):
+    """Don't forget to commit the session after calling this function!"""
     previous_links_ids = [link.id for link in previous_links]
     for link_in_id in new_links_ids:
         if link_in_id not in previous_links_ids:
@@ -29,8 +30,6 @@ def update_links(
                 contribution_id=obj.id,
             )
             previous_links.append(link)
-            session.add(obj)
-            session.commit()
             _LOGGER.debug(
                 f"{link_name[:-1].capitalize()} added.",
                 link_id=link_in_id,
@@ -47,10 +46,10 @@ def update_links(
                 link_id=link.id,
                 contribution_id=obj.id,
             )
-            session.add(obj)
-            session.commit()
             _LOGGER.debug(
                 f"{link_name[:-1].capitalize()} removed.",
                 link_id=link.id,
                 contribution_id=obj.id,
             )
+
+    session.add(obj)
