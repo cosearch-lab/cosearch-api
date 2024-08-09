@@ -184,6 +184,12 @@ def test_read_contributor_reviewed_contributions(client, add_review):
         "id": contribution_2.id,
         "title": contribution_2.title,
         "short_title": contribution_2.short_title,
+        "discord_chat_link": None,
+        "github_link": None,
+        "forum_link": None,
+        "wiki_link": None,
+        "archived_at": None,
+        "archive_reason": None,
         "date": contribution_2.date.isoformat(),
         "tags": [],
         "contributors": [

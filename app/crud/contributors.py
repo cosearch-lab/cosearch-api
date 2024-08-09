@@ -4,7 +4,13 @@ from sqlmodel import Session, select
 from structlog import get_logger
 
 from app.core.exceptions import ConditionError
-from app.models import Contribution, Contributor, ContributorUpsert, Review
+from app.models import (
+    Contribution,
+    ContributionContributorLink,
+    Contributor,
+    ContributorUpsert,
+    Review,
+)
 
 _LOGGER = get_logger()
 
@@ -133,3 +139,13 @@ def select_contributor_reviewed_contributions(
     statement = select(Contribution).where(Contribution.id.in_(contribution_ids))
     contributions = session.exec(statement).all()
     return contributions
+
+
+def select_contributor_contributions(
+    session: Session, contributor_id: int
+) -> list[Contribution]:
+    statement = select(ContributionContributorLink).where(
+        ContributionContributorLink.contributor_id == contributor_id
+    )
+    links = session.exec(statement).all()
+    return [link.contribution for link in links]
