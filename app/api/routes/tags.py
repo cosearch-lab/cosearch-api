@@ -4,7 +4,15 @@ from sqlalchemy import select
 from app import crud
 from app.api.deps import SessionDep
 from app.core.exceptions import NotFoundError
-from app.models import Message, Tag, TagCreate, TagPublic, TagUpdate, TagViewPublic
+from app.models import (
+    ContributionShort,
+    Message,
+    Tag,
+    TagCreate,
+    TagPublic,
+    TagUpdate,
+    TagViewPublic,
+)
 
 router = APIRouter()
 
@@ -20,7 +28,15 @@ def read_tag(session: SessionDep, tag_id: int):
     tag = crud.select_tag_by_id(session, tag_id)
     if tag is None:
         raise NotFoundError(what="Tag")
-    return tag
+    return TagViewPublic.model_validate(
+        tag,
+        update={
+            "contributions": [
+                ContributionShort.from_contribution(session, contribution)
+                for contribution in tag.contributions
+            ]
+        },
+    )
 
 
 @router.put("/tags/{tag_id}", response_model=TagPublic)

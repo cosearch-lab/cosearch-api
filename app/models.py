@@ -226,7 +226,7 @@ class TagViewPublic(TagBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    contributions: list["TaggedContributionShort"] = []
+    contributions: list["ContributionShort"] = []
 
 
 class ReviewBase(SQLModel):
@@ -426,13 +426,6 @@ class ContributionShort(SQLModel):
         return cls.model_validate(
             db_contribution, update={"contributors": contributors}
         )
-
-
-class TaggedContributionShort(ContributionShort):
-    """Used to display contribution for a specific tag.
-    Type of attribute `tags` is Tag instead of TagPublic to avoid infinite recursion."""
-
-    tags: list[Tag] = []
 
 
 class ContributionWithAttributesShortPublic(ContributionBase):
