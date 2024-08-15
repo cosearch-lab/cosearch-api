@@ -299,10 +299,11 @@ class ReviewShort(SQLModel):
 
 class ReviewPublic(ReviewBase):
     id: int
-    link: str | None = None
-    contribution_id: str
     created_at: datetime
     updated_at: datetime
+
+    link: str | None = None
+    contribution_id: str
     reviewers: list[ContributorShort] = []
 
 
@@ -465,7 +466,7 @@ class ContributionWithAttributesShortPublic(ContributionBase):
 
     contributors: list[ContributorShort] = []
     tags: list[TagPublic] = []
-    reviews: list[ReviewShort] = []
+    reviews: list[ReviewPublic] = []
     dependencies: list[ContributionShort] = []
 
     @classmethod
