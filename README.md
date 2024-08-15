@@ -9,7 +9,7 @@ Backend of CoSearch APP.
 Deploy and run the backend using Docker:
 
 ```bash
-    docker compose up -d
+docker compose up -d
 ```
 
 You may also want to run the app manually (eg. for hot reloading), in that case:
@@ -18,7 +18,7 @@ You may also want to run the app manually (eg. for hot reloading), in that case:
 2. Run the following command
 
 ```bash
-    uvicorn app.main:app --reload
+uvicorn app.main:app --reload
 ```
 
 To kill the app, run
