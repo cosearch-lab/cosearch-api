@@ -5,7 +5,7 @@ from app.core.exceptions import NotFoundError
 from app.crud.contributions import select_contribution_by_id
 from app.crud.contributors import select_contributor_by_id
 from app.crud.utils import update_links
-from app.models import Review, ReviewCreate
+from app.models import Review, ReviewCreate, ReviewUpdate
 
 _LOGGER = get_logger()
 
@@ -31,7 +31,7 @@ def create_review(session: Session, review_in: ReviewCreate) -> Review:
     db_review = Review(
         contribution_id=contribution.id,
         reviewers=reviewers,
-        link=review_in.link,
+        link=str(review_in.link) if review_in.link else None,
         notes=review_in.notes,
     )
     session.add(db_review)
@@ -41,7 +41,7 @@ def create_review(session: Session, review_in: ReviewCreate) -> Review:
     return db_review
 
 
-def update_review(session: Session, review: Review, review_in: ReviewCreate):
+def update_review(session: Session, review: Review, review_in: ReviewUpdate):
     review_link = (
         "reviewers",
         review.reviewers,
@@ -50,7 +50,8 @@ def update_review(session: Session, review: Review, review_in: ReviewCreate):
     )
     update_links(session, review, "review", *review_link)
 
-    update_dict = review_in.model_dump()
+    update_dict = review_in.model_dump(exclude={"link"})
+    update_dict["link"] = str(review_in.link) if review_in.link else None
     review.sqlmodel_update(update_dict)
     session.commit()
     session.refresh(review)

@@ -9,7 +9,7 @@ def test_create_review(client, add_contribution):
         json={
             "contribution_id": contribution.id,
             "reviewers": [contributor_1.id],
-            "link": "https://example.com",
+            "link": "https://example.com/",
             "notes": "Test notes",
         },
     )
@@ -20,7 +20,7 @@ def test_create_review(client, add_contribution):
     review_id = content.pop("id")
     assert content == {
         "contribution_id": contribution.id,
-        "link": "https://example.com",
+        "link": "https://example.com/",
         "notes": "Test notes",
         "reviewers": [
             {
@@ -37,7 +37,7 @@ def test_create_review(client, add_contribution):
     assert response.json() == {
         "id": review_id,
         "contribution_id": contribution.id,
-        "link": "https://example.com",
+        "link": "https://example.com/",
         "notes": "Test notes",
         "reviewers": [
             {
@@ -56,8 +56,8 @@ def test_create_review(client, add_contribution):
         json={
             "contribution_id": contribution.id,
             "reviewers": [contributor_2.id],
-            "link": "https://example.com",
-            "notes": "Updated notes",
+            "link": "https://example.com/",
+            "notes": "",
         },
     )
     assert response.status_code == 200, response.json()
@@ -66,8 +66,8 @@ def test_create_review(client, add_contribution):
     assert new_content == {
         "id": review_id,
         "contribution_id": contribution.id,
-        "link": "https://example.com",
-        "notes": "Updated notes",
+        "link": "https://example.com/",
+        "notes": None,
         "reviewers": [
             {
                 "id": contributor_2.id,
@@ -85,8 +85,8 @@ def test_create_review(client, add_contribution):
     assert response.json() == {
         "id": review_id,
         "contribution_id": contribution.id,
-        "link": "https://example.com",
-        "notes": "Updated notes",
+        "link": "https://example.com/",
+        "notes": None,
         "reviewers": [
             {
                 "id": contributor_2.id,
