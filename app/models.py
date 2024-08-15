@@ -1,10 +1,12 @@
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 
 from pydantic import HttpUrl, field_validator
 from sqlalchemy.sql import func
 from sqlalchemy.sql.sqltypes import JSON, DateTime
-from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel import Column, Field, Relationship, Session, SQLModel
+
+from app import crud
 
 
 # Generic message
@@ -13,12 +15,24 @@ class Message(SQLModel):
 
 
 class ContributionContributorLink(SQLModel, table=True):
+    # __table_args__ = (
+    #     UniqueConstraint(
+    #         "contribution_id",
+    #         "contributor_order",
+    #         name="contributor_order_constraint"
+    #     ),
+    # )
+
     contribution_id: str | None = Field(
         default=None, foreign_key="contribution.id", primary_key=True
     )
     contributor_id: int | None = Field(
         default=None, foreign_key="contributor.id", primary_key=True
     )
+    contributor_order: int
+
+    contribution: "Contribution" = Relationship(back_populates="contributors")
+    contributor: "Contributor" = Relationship(back_populates="contributions")
 
 
 class ContributionTagLink(SQLModel, table=True):
@@ -94,8 +108,8 @@ class Contributor(ContributorBase, table=True):
         ),
     )
 
-    contributions: list["Contribution"] = Relationship(
-        back_populates="contributors", link_model=ContributionContributorLink
+    contributions: list[ContributionContributorLink] = Relationship(
+        back_populates="contributor"
     )
     reviews: list["Review"] = Relationship(
         back_populates="reviewers", link_model=ContributorReviewLink
@@ -117,6 +131,19 @@ class ContributorWithAttributesShortPublic(ContributorBase):
     updated_at: datetime
     contributions: list["ContributionShort"] = []
 
+    @classmethod
+    def from_contributor(cls, session: Session, db_contributor: Contributor):
+        assert db_contributor.id is not None
+        contributions = [
+            ContributionShort.from_contribution(session, contribution)
+            for contribution in crud.select_contributor_contributions(
+                session=session, contributor_id=db_contributor.id
+            )
+        ]
+        return cls.model_validate(
+            db_contributor, update={"contributions": contributions}
+        )
+
 
 class ContributorViewPublic(ContributorWithAttributesShortPublic):
     """Public view of a contributor, including contributions and reviewed contributions.
@@ -124,6 +151,29 @@ class ContributorViewPublic(ContributorWithAttributesShortPublic):
     Requires one additional query to get reviewed contributions."""
 
     reviewed_contributions: list["ContributionShort"] = []
+
+    @classmethod
+    def from_contributor(cls, session: Session, db_contributor: Contributor):
+        assert db_contributor.id is not None
+        contributions = [
+            ContributionShort.from_contribution(session, contribution)
+            for contribution in crud.select_contributor_contributions(
+                session=session, contributor_id=db_contributor.id
+            )
+        ]
+        reviewed_contributions = [
+            ContributionShort.from_contribution(session, contribution)
+            for contribution in crud.select_contributor_reviewed_contributions(
+                session=session, contributor_id=db_contributor.id
+            )
+        ]
+        return cls.model_validate(
+            db_contributor,
+            update={
+                "contributions": contributions,
+                "reviewed_contributions": reviewed_contributions,
+            },
+        )
 
 
 class ContributorReviewedContributions(SQLModel):
@@ -176,7 +226,7 @@ class TagViewPublic(TagBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    contributions: list["TaggedContributionShort"] = []
+    contributions: list["ContributionShort"] = []
 
 
 class ReviewBase(SQLModel):
@@ -294,8 +344,8 @@ class Contribution(ContributionBase, table=True):
     forum_link: str | None = None
     wiki_link: str | None = None
 
-    contributors: list["Contributor"] = Relationship(
-        back_populates="contributions", link_model=ContributionContributorLink
+    contributors: list[ContributionContributorLink] = Relationship(
+        back_populates="contribution"
     )
     tags: list["Tag"] = Relationship(
         back_populates="contributions", link_model=ContributionTagLink
@@ -346,25 +396,36 @@ class ContributionUpdate(ContributionBase):
 class ContributionDependency(SQLModel):
     id: str
     title: str
-    short_title: str
+    short_title: str | None = None
 
 
 class ContributionShort(SQLModel):
     id: str
     title: str
-    short_title: str
+    short_title: str | None = None
     date: datetime
+
+    discord_chat_link: str | None = None
+    github_link: str | None = None
+    forum_link: str | None = None
+    wiki_link: str | None = None
+
+    archived_at: datetime | None = None
+    archive_reason: str | None = None
+
     contributors: list[ContributorShort] = []
     tags: list[TagPublic] = []
     reviews: list[ReviewShort] = []
     dependencies: list[ContributionDependency] = []
 
-
-class TaggedContributionShort(ContributionShort):
-    """Used to display contribution for a specific tag.
-    Type of attribute `tags` is Tag instead of TagPublic to avoid infinite recursion."""
-
-    tags: list[Tag] = []
+    @classmethod
+    def from_contribution(cls, session: Session, db_contribution: Contribution):
+        contributors = crud.select_contribution_contributors(
+            session=session, contribution_id=db_contribution.id
+        )
+        return cls.model_validate(
+            db_contribution, update={"contributors": contributors}
+        )
 
 
 class ContributionWithAttributesShortPublic(ContributionBase):
@@ -381,3 +442,23 @@ class ContributionWithAttributesShortPublic(ContributionBase):
     tags: list[TagPublic] = []
     reviews: list[ReviewShort] = []
     dependencies: list[ContributionShort] = []
+
+    @classmethod
+    def from_contribution(
+        cls,
+        session: Session,
+        db_contribution: Contribution,
+        contributors: Optional[list[Contributor]] = None,
+    ):
+        if contributors is None:
+            contributors = crud.select_contribution_contributors(
+                session=session, contribution_id=db_contribution.id
+            )
+        dependencies = [
+            ContributionShort.from_contribution(session, dependency)
+            for dependency in db_contribution.dependencies
+        ]
+        return cls.model_validate(
+            db_contribution,
+            update={"contributors": contributors, "dependencies": dependencies},
+        )

@@ -99,7 +99,7 @@ def add_contribution(
         contributors=[contributor_1.id],
         tags=[],
     )
-    db_contribution = crud.create_contribution(session=db, contribution=contribution)
+    db_contribution, _ = crud.create_contribution(session=db, contribution=contribution)
 
     return db_contribution, contributor_1, contributor_2
 
@@ -115,7 +115,6 @@ def add_contribution_with_dependency(
 
     contribution_2 = ContributionCreate(
         title="Test Contribution 2",
-        short_title="Test Contrib 2",
         date=datetime(2021, 1, 1, 0, 0, 0),
         links=[
             ContributionLinks(description="Test link 2", url="https://example2.com")
@@ -125,7 +124,9 @@ def add_contribution_with_dependency(
         tags=[],
         dependencies=[contribution_1.id],
     )
-    contribution_2 = crud.create_contribution(session=db, contribution=contribution_2)
+    contribution_2, _ = crud.create_contribution(
+        session=db, contribution=contribution_2
+    )
 
     return contribution_1, contribution_2, contributor_1, contributor_2
 
@@ -153,3 +154,39 @@ def add_review(
     db_review = crud.create_review(session=db, review_in=review)
 
     return db_review, contribution_1, contribution_2, contributor_1, contributor_2
+
+
+@pytest.fixture(scope="function")
+def add_tag(
+    db: Session,
+) -> Tag:
+    from app import crud
+    from app.models import TagCreate
+
+    tag = TagCreate(display_name="Test Tag", color="#FF0000")
+    db_tag = crud.create_tag(session=db, tag=tag)
+
+    return db_tag
+
+
+@pytest.fixture(scope="function")
+def add_contribution_with_tag(
+    db: Session, add_tag, add_contributors
+) -> tuple[Tag, Contribution, Contributor]:
+    from app import crud
+    from app.models import ContributionCreate
+
+    tag = add_tag
+    contributor_1, _ = add_contributors
+
+    contribution = ContributionCreate(
+        title="Test Contribution",
+        date=datetime(2021, 1, 1, 0, 0, 0),
+        links=[ContributionLinks(description="Test link", url="https://example.com")],
+        description="Test description",
+        contributors=[contributor_1.id],
+        tags=[tag.id],
+    )
+    db_contribution, _ = crud.create_contribution(session=db, contribution=contribution)
+
+    return tag, db_contribution, contributor_1

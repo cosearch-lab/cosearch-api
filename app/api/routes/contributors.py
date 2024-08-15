@@ -5,6 +5,7 @@ from app import crud
 from app.api.deps import SessionDep
 from app.core.exceptions import NotFoundError
 from app.models import (
+    ContributionShort,
     Contributor,
     ContributorReviewedContributions,
     ContributorUpsert,
@@ -31,14 +32,7 @@ def read_contributor(session: SessionDep, contributor_id: int):
     )
     if db_contributor is None:
         raise NotFoundError(what="Contributor")
-    assert db_contributor.id is not None
-    contributor_public = ContributorViewPublic.model_validate(db_contributor)
-    contributor_public.reviewed_contributions = (
-        crud.select_contributor_reviewed_contributions(
-            session=session, contributor_id=db_contributor.id
-        )
-    )
-    return contributor_public
+    return ContributorViewPublic.from_contributor(session, db_contributor)
 
 
 @router.get(
@@ -51,14 +45,7 @@ def read_contributor_by_local_handle(session: SessionDep, local_handle: str):
     )
     if db_contributor is None:
         raise NotFoundError(what="Contributor")
-    assert db_contributor.id is not None
-    contributor_public = ContributorViewPublic.model_validate(db_contributor)
-    contributor_public.reviewed_contributions = (
-        crud.select_contributor_reviewed_contributions(
-            session=session, contributor_id=db_contributor.id
-        )
-    )
-    return contributor_public
+    return ContributorViewPublic.from_contributor(session, db_contributor)
 
 
 @router.put(
@@ -80,8 +67,11 @@ def update_contributor(
         contributor_in=contributor_in,
         contributor_update_id=contributor_id,
     ):
-        return crud.update_contributor(
+        db_contributor = crud.update_contributor(
             session=session, contributor=db_contributor, contributor_in=contributor_in
+        )
+        return ContributorWithAttributesShortPublic.from_contributor(
+            session, db_contributor
         )
 
 
@@ -89,7 +79,10 @@ def update_contributor(
 def read_contributors(session: SessionDep, skip: int = 0, limit: int = 100):
     statement = select(Contributor).offset(skip).limit(limit)
     contributors = session.exec(statement).all()
-    return [contributor[0] for contributor in contributors]
+    return [
+        ContributorWithAttributesShortPublic.from_contributor(session, contributor[0])
+        for contributor in contributors
+    ]
 
 
 @router.get(
@@ -102,9 +95,13 @@ def read_contributor_reviewed_contributions(session: SessionDep, contributor_id:
     )
     if db_contributor is None:
         raise NotFoundError(what="Contributor")
-    reviewed_contributions = crud.select_contributor_reviewed_contributions(
-        session=session, contributor_id=contributor_id
-    )
+    assert db_contributor.id is not None
+    reviewed_contributions = [
+        ContributionShort.from_contribution(session, contribution)
+        for contribution in crud.select_contributor_reviewed_contributions(
+            session=session, contributor_id=db_contributor.id
+        )
+    ]
     return ContributorReviewedContributions(
         reviewed_contributions=reviewed_contributions
     )
