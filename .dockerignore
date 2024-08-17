@@ -1,0 +1,16 @@
+# Python
+__pycache__
+app.egg-info
+*.pyc
+.mypy_cache
+.coverage
+htmlcov
+.venv
+
+.env
+.flake8
+.gitignore
+.pre-commit-config.yaml
+docker-compose.yaml
+pyproject.toml
+README.md

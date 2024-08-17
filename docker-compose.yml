@@ -2,11 +2,14 @@ services:
   postgres:
     image: postgres:12
     restart: always
+    volumes:
+      - app-db-data:/var/lib/postgresql/data/pgdata
     env_file:
       - .env
     ports:
-      - "5431:5432"
+      - "5432:5432"
     environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
@@ -18,3 +21,25 @@ services:
       - postgres
     ports:
       - "8080:8080"
+
+  backend:
+    image: 'backend:${TAG-latest}'
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8000:80"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+    build:
+      context: .
+
+
+volumes:
+  app-db-data:
