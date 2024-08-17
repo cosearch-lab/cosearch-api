@@ -328,6 +328,7 @@ class ContributionCreate(ContributionBase):
     github_link: HttpUrl | None = Field(default=None)
     forum_link: HttpUrl | None = Field(default=None)
     wiki_link: HttpUrl | None = Field(default=None)
+    highlighted_discord_message: HttpUrl | None = Field(default=None)
     contributors: list[int]
     tags: list[int]
     dependencies: list[str] = []
@@ -338,6 +339,7 @@ class ContributionCreate(ContributionBase):
         "github_link",
         "forum_link",
         "wiki_link",
+        "highlighted_discord_message",
         mode="before",
     )
     @classmethod
@@ -369,6 +371,7 @@ class Contribution(ContributionBase, table=True):
     github_link: str | None = None
     forum_link: str | None = None
     wiki_link: str | None = None
+    highlighted_discord_message: str | None = None
 
     contributors: list[ContributionContributorLink] = Relationship(
         back_populates="contribution"
@@ -400,6 +403,7 @@ class ContributionUpdate(ContributionBase):
     github_link: HttpUrl | None = Field(default=None)
     forum_link: HttpUrl | None = Field(default=None)
     wiki_link: HttpUrl | None = Field(default=None)
+    highlighted_discord_message: HttpUrl | None = Field(default=None)
     contributors: list[int]
     tags: list[int]
     dependencies: list[str] = []
@@ -410,6 +414,7 @@ class ContributionUpdate(ContributionBase):
         "github_link",
         "forum_link",
         "wiki_link",
+        "highlighted_discord_message",
         mode="before",
     )
     @classmethod
@@ -435,6 +440,7 @@ class ContributionShort(SQLModel):
     github_link: str | None = None
     forum_link: str | None = None
     wiki_link: str | None = None
+    highlighted_discord_message: str | None = None
 
     archived_at: datetime | None = None
     archive_reason: str | None = None
@@ -463,6 +469,7 @@ class ContributionWithAttributesShortPublic(ContributionBase):
     github_link: str | None = None
     forum_link: str | None = None
     wiki_link: str | None = None
+    highlighted_discord_message: str | None = None
 
     contributors: list[ContributorShort] = []
     tags: list[TagPublic] = []

@@ -89,6 +89,7 @@ def test_read_tag_with_contributions(client, add_contribution_with_tag):
                 "github_link": None,
                 "forum_link": None,
                 "wiki_link": None,
+                "highlighted_discord_message": None,
                 "archived_at": None,
                 "archive_reason": None,
                 "contributors": [

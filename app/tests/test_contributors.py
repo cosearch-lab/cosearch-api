@@ -188,6 +188,7 @@ def test_read_contributor_reviewed_contributions(client, add_review):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "archived_at": None,
         "archive_reason": None,
         "date": contribution_2.date.isoformat(),

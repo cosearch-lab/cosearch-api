@@ -123,6 +123,7 @@ def test_read_contribution_with_review(
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "archived_at": None,
         "archive_reason": None,
         "links": [
