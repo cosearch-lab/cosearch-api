@@ -1,8 +1,13 @@
+from urllib.parse import urljoin
+
+from discord import Colour, Embed
 from fastapi import APIRouter
 from sqlalchemy.sql import select
+from structlog import get_logger
 
 from app import crud
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, get_discord_webhook
+from app.core.config import settings
 from app.core.exceptions import NotFoundError
 from app.models import (
     Contribution,
@@ -13,6 +18,8 @@ from app.models import (
     ContributorShort,
 )
 
+_LOGGER = get_logger()
+
 router = APIRouter()
 
 
@@ -21,6 +28,23 @@ def create_contribution(session: SessionDep, contribution: ContributionCreate):
     db_contribution, contributors = crud.create_contribution(
         session=session, contribution=contribution
     )
+
+    discord_webhook = get_discord_webhook()
+    if discord_webhook is not None:
+        _LOGGER.info("Sending contribution created message to Discord")
+        embed = Embed(
+            title="Contribution created!",
+            description=db_contribution.title,
+            color=Colour.blue(),
+        )
+        embed.add_field(
+            name="Link",
+            value=urljoin(
+                str(settings.COSEARCH_URL), f"contributions/{db_contribution.id}"
+            ),
+        )
+        discord_webhook.send(embed=embed)
+        _LOGGER.info("Sent contribution created message to Discord")
     return ContributionWithAttributesShortPublic.from_contribution(
         session, db_contribution, contributors
     )
