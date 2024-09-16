@@ -138,11 +138,10 @@ def update_contribution(
     )
     update_dict.update(
         {
-            k: str(v)
+            k: str(v) if v is not None else None
             for k, v in contribution_in.model_dump(
                 include={"discord_chat_link", "github_link", "forum_link", "wiki_link"}
             ).items()
-            if v is not None
         }
     )
     update_dict["links"] = [

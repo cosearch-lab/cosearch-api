@@ -42,6 +42,7 @@ def test_create_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Test Description",
@@ -75,6 +76,7 @@ def test_create_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Test Description",
@@ -135,6 +137,7 @@ def test_create_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": "https://wiki.com/",
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Updated Description",
@@ -174,6 +177,7 @@ def test_create_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": "https://wiki.com/",
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Updated Description",
@@ -243,6 +247,7 @@ def test_update_contributors_in_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Test Description",
@@ -276,6 +281,7 @@ def test_update_contributors_in_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Test Description",
@@ -329,6 +335,7 @@ def test_update_contributors_in_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Updated Description",
@@ -364,6 +371,7 @@ def test_update_contributors_in_contribution(client, add_contributors):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "links": [
             {
                 "description": "Updated Description",
@@ -512,6 +520,7 @@ def test_contribution_dependents(client, add_contribution_with_dependency):
         "github_link": None,
         "forum_link": None,
         "wiki_link": None,
+        "highlighted_discord_message": None,
         "archived_at": None,
         "archive_reason": None,
         "date": "2021-01-01T00:00:00",

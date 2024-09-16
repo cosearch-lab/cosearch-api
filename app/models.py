@@ -230,13 +230,24 @@ class TagViewPublic(TagBase):
 
 
 class ReviewBase(SQLModel):
-    link: str
-    notes: str
+    notes: str | None = None
 
 
 class ReviewCreate(ReviewBase):
+    link: HttpUrl | None = None
     contribution_id: str
     reviewers: list[int]
+
+    @field_validator(
+        "link",
+        "notes",
+        mode="before",
+    )
+    @classmethod
+    def empty_string_to_none(cls, v: str):
+        if v == "":
+            return None
+        return v
 
 
 class Review(ReviewBase, table=True):
@@ -257,6 +268,7 @@ class Review(ReviewBase, table=True):
         ),
     )
 
+    link: str | None = None
     contribution_id: str = Field(foreign_key="contribution.id")
     contribution: "Contribution" = Relationship(back_populates="reviews")
     reviewers: list["Contributor"] = Relationship(
@@ -265,8 +277,20 @@ class Review(ReviewBase, table=True):
 
 
 class ReviewUpdate(ReviewBase):
+    link: HttpUrl | None = None
     contribution_id: str
     reviewers: list[int]
+
+    @field_validator(
+        "link",
+        "notes",
+        mode="before",
+    )
+    @classmethod
+    def empty_string_to_none(cls, v: str):
+        if v == "":
+            return None
+        return v
 
 
 class ReviewShort(SQLModel):
@@ -275,9 +299,11 @@ class ReviewShort(SQLModel):
 
 class ReviewPublic(ReviewBase):
     id: int
-    contribution_id: str
     created_at: datetime
     updated_at: datetime
+
+    link: str | None = None
+    contribution_id: str
     reviewers: list[ContributorShort] = []
 
 
@@ -302,6 +328,7 @@ class ContributionCreate(ContributionBase):
     github_link: HttpUrl | None = Field(default=None)
     forum_link: HttpUrl | None = Field(default=None)
     wiki_link: HttpUrl | None = Field(default=None)
+    highlighted_discord_message: HttpUrl | None = Field(default=None)
     contributors: list[int]
     tags: list[int]
     dependencies: list[str] = []
@@ -312,6 +339,7 @@ class ContributionCreate(ContributionBase):
         "github_link",
         "forum_link",
         "wiki_link",
+        "highlighted_discord_message",
         mode="before",
     )
     @classmethod
@@ -343,6 +371,7 @@ class Contribution(ContributionBase, table=True):
     github_link: str | None = None
     forum_link: str | None = None
     wiki_link: str | None = None
+    highlighted_discord_message: str | None = None
 
     contributors: list[ContributionContributorLink] = Relationship(
         back_populates="contribution"
@@ -374,6 +403,7 @@ class ContributionUpdate(ContributionBase):
     github_link: HttpUrl | None = Field(default=None)
     forum_link: HttpUrl | None = Field(default=None)
     wiki_link: HttpUrl | None = Field(default=None)
+    highlighted_discord_message: HttpUrl | None = Field(default=None)
     contributors: list[int]
     tags: list[int]
     dependencies: list[str] = []
@@ -384,6 +414,7 @@ class ContributionUpdate(ContributionBase):
         "github_link",
         "forum_link",
         "wiki_link",
+        "highlighted_discord_message",
         mode="before",
     )
     @classmethod
@@ -409,6 +440,7 @@ class ContributionShort(SQLModel):
     github_link: str | None = None
     forum_link: str | None = None
     wiki_link: str | None = None
+    highlighted_discord_message: str | None = None
 
     archived_at: datetime | None = None
     archive_reason: str | None = None
@@ -437,10 +469,11 @@ class ContributionWithAttributesShortPublic(ContributionBase):
     github_link: str | None = None
     forum_link: str | None = None
     wiki_link: str | None = None
+    highlighted_discord_message: str | None = None
 
     contributors: list[ContributorShort] = []
     tags: list[TagPublic] = []
-    reviews: list[ReviewShort] = []
+    reviews: list[ReviewPublic] = []
     dependencies: list[ContributionShort] = []
 
     @classmethod
