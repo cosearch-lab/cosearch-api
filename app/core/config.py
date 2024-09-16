@@ -15,7 +15,10 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = ""
 
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    COSEARCH_URL: HttpUrl | None = None
+
     SENTRY_DSN: HttpUrl | None = None
+    DISCORD_WEBHOOK_URL: HttpUrl | None = None
 
     @computed_field  # type: ignore[misc]
     @property
